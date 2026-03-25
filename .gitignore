@@ -1,0 +1,16 @@
+# Environments
+.env
+.venv
+env/
+venv/
+
+# Python cache
+__pycache__/
+*.py[cod]
+
+# OS generated files
+.DS_Store
+
+# Local scratchpads and tests
+test_*.py
+check_*.py
