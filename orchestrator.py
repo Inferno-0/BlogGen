@@ -1,18 +1,14 @@
 import os
 import json
 import time
-from dotenv import load_dotenv
 import google.generativeai as genai
 
-# Load environment variables
-load_dotenv()
-
 # Initialize the Gemini client
-api_key = os.getenv("LLM_API_KEY")
+api_key = os.environ.get("LLM_API_KEY")
 if not api_key:
-    raise ValueError("LLM_API_KEY not found in environment variables. Please check your .env file.")
+    raise ValueError("LLM_API_KEY not found in environment variables.")
 
-genai.configure(api_key=api_key)
+genai.configure(api_key=os.environ.get("LLM_API_KEY"))
 
 # CRITICAL: Use exactly this model string
 MODEL_NAME = "gemini-2.5-flash"
@@ -28,12 +24,15 @@ def agent_research_outline(input_data: dict) -> str:
     start_time = time.time()
     
     prompt = f"""
-    Create a highly detailed blog outline based on the following input:
+    Act as a Senior Technical SEO Architect.
+    Create a highly detailed blog outline based on the following input, optimized for High Semantic Richness:
     - Primary Keyword: {input_data.get('primary_keyword')}
     - Secondary Keywords: {', '.join(input_data.get('secondary_keywords', []))}
     - Search Intent: {input_data.get('search_intent')}
+    - SERP Gaps: {', '.join(input_data.get('serp_gaps', []))}
 
     Please provide a structured outline with headings and subheadings.
+    You MUST explicitly include specific H2s for 'Search Intent Satisfaction' and H3s for addressing the SERP Gaps.
     """
     
     response = model.generate_content(prompt)
@@ -58,9 +57,12 @@ def agent_draft_content(outline: str) -> str:
     
     {outline}
 
+    Write with strong E-E-A-T signals (Expertise, Experience, Authoritativeness, Trustworthiness).
+    Enforce short, punchy paragraphs (max 3 sentences).
+    Require the use of bulleted lists, bolded key concepts, and high-engagement transition hooks.
+
     CRITICAL INSTRUCTION:
     Write concise, 40-60 word answers directly after each main heading to secure 'Position 0' featured snippets.
-    Maintain an engaging and informative tone throughout the rest of the content under the headings.
     """
     
     response = model.generate_content(prompt)
@@ -83,6 +85,7 @@ def agent_optimize_seo(draft: str, serp_gaps: list) -> str:
     start_time = time.time()
     
     prompt = f"""
+    Act as a Technical HTML SEO Master.
     Take the following blog draft and optimize it for SEO:
     
     DRAFT:
@@ -93,7 +96,7 @@ def agent_optimize_seo(draft: str, serp_gaps: list) -> str:
     
     INSTRUCTIONS:
     1. Fix the provided SERP gaps (e.g., expand word count where necessary, add missing details).
-    2. Format the text into clean HTML (use proper semantic tags like <h2>, <h3>, <p>, <ul>, etc.).
+    2. Format the text into strict Semantic HTML5 (use tags like <article>, <section>, <aside>, <h2>, <h3>, <p>, <ul>, etc.).
     3. Ensure the Flesch-Kincaid readability score is natural and conversational.
     4. Generate FAQ data, but DO NOT put the <script> tag inside the HTML.
     
@@ -101,7 +104,7 @@ def agent_optimize_seo(draft: str, serp_gaps: list) -> str:
     You MUST return ONLY a JSON object containing EXACTLY these keys:
     "title" - The SEO-optimized title of the blog post.
     "meta_description" - A compelling meta description (under 160 characters).
-    "html_content" - The fully formatted HTML content ONLY (No script tags).
+    "html_content" - The fully formatted HTML content ONLY. CRITICAL: Do NOT wrap the HTML in markdown code blocks (e.g., no ```html and no ```). Return the raw string starting directly with the first HTML tag.
     "faq_schema" - A nested, raw JSON object representing the FAQ data (Do not format it as a string).
     """
     

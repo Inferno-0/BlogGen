@@ -14,3 +14,6 @@ __pycache__/
 # Local scratchpads and tests
 test_*.py
 check_*.py
+
+# Streamlit Secrets
+.streamlit/secrets.toml
