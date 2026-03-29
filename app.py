@@ -96,23 +96,39 @@ if generate_btn:
                 # Safety strip to remove markdown code blocks
                 clean_html = raw_html.replace("```html", "").replace("```", "").strip()
                 
-                # CSS Injection for light text and modern font (dark mode friendly)
+                # CSS Injection for dynamic text coloring (Light & Dark theme aware)
                 css_injection = """
                 <style>
                     body {
-                        color: #FAFAFA;
                         font-family: 'Inter', 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
                         line-height: 1.6;
                         padding: 1rem;
+                        background-color: transparent;
                     }
-                    h1, h2, h3, h4, h5, h6 {
-                        color: #FFFFFF;
-                        margin-top: 1.5rem;
-                        margin-bottom: 0.5rem;
-                    }
-                    a { color: #82B1FF; text-decoration: none; }
                     ul, ol { margin-bottom: 1rem; }
                     li { margin-bottom: 0.5rem; }
+                    
+                    /* Default / Light Mode */
+                    @media (prefers-color-scheme: light) {
+                        body { color: #1e1e1e; }
+                        h1, h2, h3, h4, h5, h6 {
+                            color: #000000;
+                            margin-top: 1.5rem;
+                            margin-bottom: 0.5rem;
+                        }
+                        a { color: #0056b3; text-decoration: none; }
+                    }
+                    
+                    /* Dark Mode */
+                    @media (prefers-color-scheme: dark) {
+                        body { color: #FAFAFA; }
+                        h1, h2, h3, h4, h5, h6 {
+                            color: #FFFFFF;
+                            margin-top: 1.5rem;
+                            margin-bottom: 0.5rem;
+                        }
+                        a { color: #82B1FF; text-decoration: none; }
+                    }
                 </style>
                 """
                 styled_html = f"{css_injection}\n{clean_html}"
