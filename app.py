@@ -5,6 +5,7 @@ import json
 import random
 import pandas as pd
 import plotly.express as px
+from wp_publisher import publish_to_wordpress
 
 # Inject Streamlit secret into the environment for the backend orchestrator
 try:
@@ -187,6 +188,16 @@ if generate_btn:
                 
                 st.plotly_chart(fig, width='stretch')
                 st.caption("Scoring framework based on Part 3 Hackathon Guidelines: Structure (15%), Semantic (25%), Interpretability (30%), Conversational (20%), Engagement (10%).")
+                
+                st.divider()
+                st.subheader("🌐 CMS Integration")
+                if st.button("🚀 Push Draft to WordPress", type="secondary"):
+                    with st.spinner("Authenticating and pushing to WordPress..."):
+                        wp_url = publish_to_wordpress(result)
+                        if wp_url:
+                            st.success(f"Success! Draft published. [View on WordPress]({wp_url})")
+                        else:
+                            st.error("Failed to publish to WordPress. Check terminal logs for API errors.")
                 
             else:
                 st.error("The orchestration engine encountered an error generating the pipeline. Check terminal logs.")
