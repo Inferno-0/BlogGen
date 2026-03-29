@@ -8,7 +8,9 @@ api_key = os.environ.get("LLM_API_KEY")
 if not api_key:
     raise ValueError("LLM_API_KEY not found in environment variables.")
 
-genai.configure(api_key=os.environ.get("LLM_API_KEY"))
+# Sanitize the key to remove invisible trailing/leading spaces
+clean_key = api_key.strip()
+genai.configure(api_key=clean_key)
 
 # CRITICAL: Use exactly this model string
 MODEL_NAME = "gemini-2.5-flash"
